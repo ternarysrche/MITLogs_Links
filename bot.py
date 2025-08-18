@@ -12,7 +12,7 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-REDIRECTOR_URL = "http://localhost:5001"
+REDIRECTOR_URL = "https://mitlogs-links.onrender.com"
 
 @bot.command()
 async def shorten(ctx, short_id: str, url: str):
