@@ -4,6 +4,8 @@ import sqlite3
 import logging
 import os
 
+DEPLOYED_URL = os.environ.get("REDIRECTOR_URL", "http://localhost:5001")
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -81,9 +83,9 @@ def create_link():
     if old_url:
         return jsonify({
             "message": f"Replaced old URL: {old_url}",
-            "short_url": f"http://localhost:5001/{short_id}"
+            "short_url": f"{DEPLOYED_URL}/{short_id}"
         }), 200
-    return jsonify({"short_url": f"http://localhost:5001/{short_id}"}), 201
+    return jsonify({"short_url": f"{DEPLOYED_URL}/{short_id}"}), 201
 
 if __name__ == "__main__":
     # Use port 5001 to avoid conflict with AirPlay on macOS
