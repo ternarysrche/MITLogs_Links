@@ -37,7 +37,7 @@ def get_url(short_id: str):
         supabase.table("links")
         .select("url")
         .eq("short_id", short_id)
-        .single()
+        .maybe_single()
         .execute()
     )
     if response.error:
