@@ -31,19 +31,27 @@ CORS(app)  # Enable CORS for all routes
 # ==========================
 # Helper functions
 # ==========================
+
+
 def get_url(short_id: str):
-    """Fetch the URL associated with a short_id from Supabase."""
-    response = (
-        supabase.table("links")
-        .select("url")
-        .eq("short_id", short_id)
-        .maybe_single()
-        .execute()
-    )
-    if response.error:
-        logger.error(f"Error fetching {short_id}: {response.error}")
+    """Fetch the URL associated with a short_id from Supabase safely."""
+    try:
+        response = (
+            supabase.table("links")
+            .select("url")
+            .eq("short_id", short_id)
+            .maybe_single()
+            .execute()
+        )
+        if not response or response.error:
+            # Either the request failed or response.error is set
+            if response and response.error:
+                logger.error(f"Error fetching {short_id}: {response.error}")
+            return None
+        return response.data["url"] if response.data else None
+    except Exception as e:
+        logger.exception(f"Unexpected error fetching {short_id}: {e}")
         return None
-    return response.data["url"] if response.data else None
 
 
 def set_url(short_id: str, url: str):
