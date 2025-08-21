@@ -6,6 +6,9 @@ import os
 
 DEPLOYED_URL = "https://mitlogs-links.onrender.com"
 
+if DEPLOYED_URL == "https://mitlogs-links.onrender.com":
+    DEPLOYED_URL = "https://links.themitlogs.com/"
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
