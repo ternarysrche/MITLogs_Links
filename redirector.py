@@ -4,7 +4,7 @@ import sqlite3
 import logging
 import os
 
-DEPLOYED_URL = os.environ.get("REDIRECTOR_URL", "http://localhost:5001")
+DEPLOYED_URL = "https://mitlogs-links.onrender.com"
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -14,20 +14,25 @@ app = Flask(__name__)
 CORS(app)  # This will enable CORS for all routes
 DB_PATH = "links.db"
 
+
 # Initialize database
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
         CREATE TABLE IF NOT EXISTS links (
             short_id TEXT PRIMARY KEY,
             url TEXT NOT NULL
         )
-    """)
+    """
+    )
     conn.commit()
     conn.close()
 
+
 init_db()
+
 
 # Helper functions
 def get_url(short_id):
@@ -38,6 +43,7 @@ def get_url(short_id):
     conn.close()
     return row[0] if row else None
 
+
 def set_url(short_id, url):
     old_url = get_url(short_id)
     conn = sqlite3.connect(DB_PATH)
@@ -47,6 +53,7 @@ def set_url(short_id, url):
     conn.close()
     return old_url
 
+
 # Redirect route
 @app.route("/<short_id>")
 def redirect_link(short_id):
@@ -55,39 +62,48 @@ def redirect_link(short_id):
         return redirect(url)
     return "Link not found", 404
 
+
 # Create/overwrite link
 @app.route("/create", methods=["POST"])
 def create_link():
     logger.info(f"Received request: {request.method} {request.url}")
     logger.info(f"Headers: {dict(request.headers)}")
-    
+
     if not request.is_json:
         logger.error("Request is not JSON")
         return jsonify({"error": "Content-Type must be application/json"}), 400
-    
+
     try:
         data = request.get_json()
         logger.info(f"Request data: {data}")
     except Exception as e:
         logger.error(f"Error parsing JSON: {e}")
         return jsonify({"error": "Invalid JSON"}), 400
-    
+
     short_id = data.get("id")
     url = data.get("url")
-    
+
     if not short_id or not url:
         logger.error(f"Missing id or url. id: {short_id}, url: {url}")
         return jsonify({"error": "Missing id or url"}), 400
 
     old_url = set_url(short_id, url)
     if old_url:
-        return jsonify({
-            "message": f"Replaced old URL: {old_url}",
-            "short_url": f"{DEPLOYED_URL}/{short_id}"
-        }), 200
+        logger.info(f"short_url is: {DEPLOYED_URL}/{short_id}")
+        return (
+            jsonify(
+                {
+                    "message": f"Replaced old URL: {old_url}",
+                    "short_url": f"{DEPLOYED_URL}/{short_id}",
+                }
+            ),
+            200,
+        )
+    logger.info(f"short_url is: {DEPLOYED_URL}/{short_id}")
     return jsonify({"short_url": f"{DEPLOYED_URL}/{short_id}"}), 201
+
 
 if __name__ == "__main__":
     # Use port 5001 to avoid conflict with AirPlay on macOS
-    port = int(os.environ.get('PORT', 5001))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    port = int(os.environ.get("PORT", 5001))
+    app.run(debug=True, host="0.0.0.0", port=port)
