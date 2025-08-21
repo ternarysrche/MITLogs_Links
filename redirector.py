@@ -126,7 +126,7 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))
     app.run(debug=True, host="0.0.0.0", port=port)
 
- from flask import Flask, redirect, request, jsonify, make_response
+# from flask import Flask, redirect, request, jsonify, make_response
 # from flask_cors import CORS
 # import sqlite3
 # import logging
