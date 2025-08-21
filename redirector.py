@@ -34,7 +34,6 @@ CORS(app)  # Enable CORS for all routes
 
 
 def get_url(short_id: str):
-    """Fetch the URL associated with a short_id from Supabase safely."""
     try:
         response = (
             supabase.table("links")
@@ -43,37 +42,23 @@ def get_url(short_id: str):
             .maybe_single()
             .execute()
         )
-        if not response or response.error:
-            # Either the request failed or response.error is set
-            if response and response.error:
-                logger.error(f"Error fetching {short_id}: {response.error}")
-            return None
-        return response.data["url"] if response.data else None
+        if response.data:
+            return response.data["url"]
+        return None  # row doesn't exist
     except Exception as e:
         logger.exception(f"Unexpected error fetching {short_id}: {e}")
         return None
 
 
+# Create or replace URL in Supabase
 def set_url(short_id: str, url: str):
-    """Insert or update a URL in Supabase. Returns the old URL if overwritten."""
     old_url = get_url(short_id)
-    if old_url:
-        # Update existing row
-        response = (
-            supabase.table("links")
-            .update({"url": url})
-            .eq("short_id", short_id)
-            .execute()
-        )
-        if response.error:
-            logger.error(f"Error updating {short_id}: {response.error}")
-    else:
-        # Insert new row
-        response = (
-            supabase.table("links").insert({"short_id": short_id, "url": url}).execute()
-        )
-        if response.error:
-            logger.error(f"Error inserting {short_id}: {response.error}")
+    try:
+        # Upsert the link
+        supabase.table("links").upsert({"short_id": short_id, "url": url}).execute()
+    except Exception as e:
+        logger.exception(f"Error setting {short_id}: {e}")
+        return old_url
     return old_url
 
 
