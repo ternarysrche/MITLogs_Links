@@ -80,6 +80,11 @@ def redirect_link(short_id):
     return "Link not found", 404
 
 
+@app.route("/favicon.ico")
+def favicon():
+    return "", 204
+
+
 @app.route("/create", methods=["POST"])
 def create_link():
     logger.info(f"Received request: {request.method} {request.url}")
