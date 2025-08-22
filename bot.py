@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import requests
 import os
 from dotenv import load_dotenv
@@ -14,6 +14,15 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 REDIRECTOR_URL = "https://mitlogs-links.onrender.com"
+SELF_URL = "https://mitlogs-links-iyrf.onrender.com"  
+
+@tasks.loop(minutes=14.5)
+async def keep_awake():
+    try:
+        res = requests.get(SELF_URL, timeout=10)
+        print(f"[KeepAlive] Pinged self, status: {res.status_code}")
+    except Exception as e:
+        print(f"[KeepAlive] Error pinging self: {e}")
 
 @bot.command()
 async def shorten(ctx, short_id: str, url: str):
@@ -57,5 +66,8 @@ async def shorten(ctx, short_id: str, url: str):
     except Exception as e:
         await ctx.send("An unexpected error occurred.")
         print(f"Unexpected error: {e}")
+
+
 webserver.keep_alive()
+keep_awake.start()
 bot.run(TOKEN)
