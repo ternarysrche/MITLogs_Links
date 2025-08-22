@@ -31,7 +31,7 @@ async def shorten(ctx, short_id: str, url: str):
             f"{REDIRECTOR_URL}/create",
             json=payload,
             headers=headers,
-            timeout=5
+            timeout=100
         )
         
         if response.status_code in (200, 201):
