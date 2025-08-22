@@ -3,6 +3,7 @@ from discord.ext import commands
 import requests
 import os
 from dotenv import load_dotenv
+import webserver
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -56,5 +57,5 @@ async def shorten(ctx, short_id: str, url: str):
     except Exception as e:
         await ctx.send("An unexpected error occurred.")
         print(f"Unexpected error: {e}")
-
+webserver.keep_alive()
 bot.run(TOKEN)
