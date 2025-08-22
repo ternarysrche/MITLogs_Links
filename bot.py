@@ -24,6 +24,13 @@ async def keep_awake():
     except Exception as e:
         print(f"[KeepAlive] Error pinging self: {e}")
 
+
+@bot.event
+async def on_ready():
+    print(f"{bot.user} is online and running!")
+    if not keep_awake.is_running():
+        keep_awake.start()  # start background pinger
+
 @bot.command()
 async def shorten(ctx, short_id: str, url: str):
     try:
@@ -69,5 +76,4 @@ async def shorten(ctx, short_id: str, url: str):
 
 
 webserver.keep_alive()
-keep_awake.start()
 bot.run(TOKEN)
