@@ -20,7 +20,9 @@ SELF_URL = "https://mitlogs-links-iyrf.onrender.com"
 async def keep_awake():
     try:
         res = requests.get(SELF_URL, timeout=10)
+        res2 = requests.get(REDIRECTOR_URL, timeout=10)
         print(f"[KeepAlive] Pinged self, status: {res.status_code}")
+        print(f"[KeepAlive] Pinged self, status: {res2.status_code}")
     except Exception as e:
         print(f"[KeepAlive] Error pinging self: {e}")
 
